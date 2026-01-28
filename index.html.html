@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vision Board Generator - สร้าง Vision Board มงคล</title>
+  <meta name="description" content="สร้าง Vision Board มงคล ผสานความเชื่อไทย-จีน ด้วยสีมงคลประจำวันเกิดและธาตุเสริมดวง">
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --background: hsl(230, 25%, 8%);
+      --foreground: hsl(45, 100%, 96%);
+      --card: hsl(230, 25%, 12%);
+      --card-foreground: hsl(45, 100%, 96%);
+      --primary: hsl(45, 100%, 50%);
+      --primary-foreground: hsl(230, 25%, 8%);
+      --secondary: hsl(270, 50%, 25%);
+      --muted: hsl(230, 20%, 18%);
+      --muted-foreground: hsl(230, 15%, 60%);
+      --accent: hsl(200, 80%, 60%);
+      --border: hsl(230, 20%, 20%);
+      --input: hsl(230, 20%, 15%);
+      --destructive: hsl(0, 84%, 60%);
+      --radius: 0.75rem;
+      --gold-gradient: linear-gradient(135deg, hsl(45, 100%, 50%) 0%, hsl(35, 100%, 60%) 50%, hsl(45, 100%, 45%) 100%);
+      --celestial-glow: 0 0 60px hsla(45, 100%, 50%, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans Thai', sans-serif;
+      background-color: var(--background);
+      color: var(--foreground);
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(ellipse at top, hsla(270, 50%, 20%, 0.4) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, hsla(45, 100%, 50%, 0.1) 0%, transparent 40%);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-display {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .container {
+      max-width: 672px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    /* Stars Background */
+    .stars-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .stars-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(2px 2px at 20px 30px, hsla(45, 100%, 70%, 0.8), transparent),
+        radial-gradient(2px 2px at 40px 70px, hsla(45, 100%, 60%, 0.6), transparent),
+        radial-gradient(1px 1px at 90px 40px, hsla(200, 80%, 70%, 0.8), transparent),
+        radial-gradient(2px 2px at 130px 80px, hsla(45, 100%, 70%, 0.5), transparent),
+        radial-gradient(1px 1px at 160px 120px, hsla(270, 60%, 70%, 0.6), transparent);
+      background-repeat: repeat;
+      background-size: 200px 150px;
+      animation: twinkle 4s ease-in-out infinite;
+    }
+
+    .floating-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(48px);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    @keyframes sparkle {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .header-icons {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .header-icons svg {
+      width: 24px;
+      height: 24px;
+      animation: sparkle 2s ease-in-out infinite;
+    }
+
+    .header-icons svg:nth-child(1) { color: var(--primary); }
+    .header-icons svg:nth-child(2) { color: var(--accent); animation-delay: 0.5s; }
+    .header-icons svg:nth-child(3) { color: var(--primary); animation-delay: 1s; }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+
+    .subtitle {
+      font-size: 1.125rem;
+      color: var(--muted-foreground);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    /* Progress Steps */
+    .progress-steps {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+    }
+
+    .step-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      font-size: 0.875rem;
+      background: var(--muted);
+      color: var(--muted-foreground);
+      transition: all 0.3s ease;
+    }
+
+    .step-circle.active {
+      background: var(--gold-gradient);
+      color: var(--primary-foreground);
+      box-shadow: var(--celestial-glow);
+    }
+
+    .step-circle.current {
+      transform: scale(1.1);
+    }
+
+    .step-label {
+      margin-left: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--muted-foreground);
+      display: none;
+    }
+
+    .step-label.active {
+      color: var(--foreground);
+    }
+
+    @media (min-width: 768px) {
+      .step-label { display: block; }
+    }
+
+    .step-line {
+      width: 2rem;
+      height: 2px;
+      margin: 0 0.5rem;
+      background: var(--border);
+    }
+
+    .step-line.active {
+      background: hsla(45, 100%, 50%, 0.5);
+    }
+
+    @media (min-width: 768px) {
+      .step-line { width: 4rem; }
+    }
+
+    /* Card */
+    .card {
+      background: hsla(230, 25%, 12%, 0.3);
+      backdrop-filter: blur(12px);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      border: 1px solid hsla(230, 20%, 20%, 0.3);
+      position: relative;
+      z-index: 10;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--gold-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-icon svg {
+      width: 24px;
+      height: 24px;
+      color: var(--primary-foreground);
+    }
+
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--foreground);
+    }
+
+    .card-subtitle {
+      color: var(--muted-foreground);
+      font-size: 0.875rem;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--foreground);
+    }
+
+    label svg {
+      width: 16px;
+      height: 16px;
+      color: var(--primary);
+    }
+
+    input {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      background: hsla(230, 20%, 15%, 0.5);
+      border: 1px solid hsla(230, 20%, 20%, 0.5);
+      border-radius: var(--radius);
+      color: var(--foreground);
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    input::placeholder {
+      color: var(--muted-foreground);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px hsla(45, 100%, 50%, 0.2);
+    }
+
+    .error-text {
+      color: var(--destructive);
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Button */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 1rem 2rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      font-family: inherit;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--gold-gradient);
+      color: var(--primary-foreground);
+      box-shadow: var(--celestial-glow);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid hsla(45, 100%, 50%, 0.5);
+      color: var(--primary);
+    }
+
+    .btn-outline:hover {
+      background: hsla(45, 100%, 50%, 0.1);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted-foreground);
+    }
+
+    .btn-ghost:hover {
+      color: var(--foreground);
+    }
+
+    /* Fortune Display */
+    .fortune-section {
+      background: hsla(230, 25%, 12%, 0.5);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid hsla(230, 20%, 20%, 0.5);
+      margin-bottom: 1.5rem;
+    }
+
+    .fortune-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .fortune-header svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .fortune-header h3 {
+      font-size: 1.125rem;
+      font-weight: 500;
+    }
+
+    .fortune-color-box {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .color-swatch {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      box-shadow: var(--celestial-glow);
+    }
+
+    .color-info h4 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .color-info p {
+      color: var(--muted-foreground);
+    }
+
+    .fortune-text {
+      color: hsla(45, 100%, 96%, 0.9);
+      line-height: 1.7;
+      font-style: italic;
+      border-left: 2px solid hsla(45, 100%, 50%, 0.5);
+      padding-left: 1rem;
+      margin-top: 1rem;
+    }
+
+    .quote-card {
+      background: linear-gradient(135deg, hsla(45, 100%, 50%, 0.2) 0%, hsla(200, 80%, 60%, 0.2) 100%);
+      border: 1px solid hsla(45, 100%, 50%, 0.3);
+      text-align: center;
+    }
+
+    .quote-card blockquote {
+      font-size: 1.25rem;
+      font-weight: 500;
+      padding: 1rem 0;
+      line-height: 1.6;
+    }
+
+    .blessing-card {
+      background: linear-gradient(135deg, hsla(35, 100%, 50%, 0.2) 0%, hsla(25, 90%, 55%, 0.2) 100%);
+      border: 1px solid hsla(35, 100%, 50%, 0.3);
+      text-align: center;
+    }
+
+    .blessing-card p {
+      font-size: 1.125rem;
+      line-height: 1.7;
+    }
+
+    .lucky-colors {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .lucky-color {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    /* Payment */
+    .payment-card {
+      text-align: center;
+    }
+
+    .qr-container {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 1.5rem;
+    }
+
+    .qr-box {
+      width: 224px;
+      height: 224px;
+      background: white;
+      border-radius: 1rem;
+      padding: 1rem;
+      box-shadow: var(--celestial-glow);
+    }
+
+    .qr-inner {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, hsla(45, 100%, 50%, 0.1) 0%, hsla(270, 50%, 25%, 0.1) 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .qr-inner svg {
+      width: 128px;
+      height: 128px;
+      color: hsla(45, 100%, 50%, 0.8);
+    }
+
+    .qr-pattern {
+      position: absolute;
+      inset: 0;
+      opacity: 0.2;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+    }
+
+    .qr-cell {
+      width: 24px;
+      height: 24px;
+    }
+
+    .qr-cell.filled {
+      background: var(--primary);
+    }
+
+    .payment-success {
+      position: absolute;
+      inset: 0;
+      background: hsla(142, 76%, 45%, 0.9);
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .payment-success.show {
+      opacity: 1;
+    }
+
+    .payment-success svg {
+      width: 80px;
+      height: 80px;
+      color: white;
+    }
+
+    .price {
+      margin-bottom: 1.5rem;
+    }
+
+    .price-amount {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .price-currency {
+      color: var(--muted-foreground);
+      margin-left: 0.5rem;
+    }
+
+    .payment-note {
+      font-size: 0.75rem;
+      color: var(--muted-foreground);
+      margin-top: 1rem;
+    }
+
+    /* Vision Board Generator */
+    .generator-card {
+      text-align: center;
+    }
+
+    .generator-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      border-radius: 50%;
+      background: var(--gold-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--celestial-glow);
+    }
+
+    .generator-icon svg {
+      width: 40px;
+      height: 40px;
+      color: var(--primary-foreground);
+    }
+
+    .generator-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .generator-subtitle {
+      color: var(--muted-foreground);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    /* Generated Image */
+    .generated-image {
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    .generated-image img {
+      width: 100%;
+      display: block;
+    }
+
+    .download-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .download-buttons {
+        flex-direction: row;
+      }
+      .download-buttons .btn {
+        flex: 1;
+      }
+    }
+
+    /* Loader */
+    .loader {
+      width: 20px;
+      height: 20px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 4rem;
+      color: var(--muted-foreground);
+      font-size: 0.875rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Utility */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .mb-4 {
+      margin-bottom: 1rem;
+    }
+
+    .mb-6 {
+      margin-bottom: 1.5rem;
+    }
+
+    .space-y-6 > * + * {
+      margin-top: 1.5rem;
+    }
+
+    /* Page Sections */
+    .page-section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .page-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Stars Background -->
+  <div class="stars-bg">
+    <div class="floating-orb" style="top: 80px; left: 40px; width: 128px; height: 128px; background: hsla(45, 100%, 50%, 0.05);"></div>
+    <div class="floating-orb" style="top: 160px; right: 80px; width: 192px; height: 192px; background: hsla(270, 50%, 25%, 0.1); animation-delay: 2s;"></div>
+    <div class="floating-orb" style="bottom: 128px; left: 25%; width: 160px; height: 160px; background: hsla(200, 80%, 60%, 0.05); animation-delay: 4s;"></div>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="header-icons">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      </div>
+      <h1 class="font-display">Vision Board Generator</h1>
+      <p class="subtitle">
+        สร้าง Vision Board มงคล ผสานความเชื่อไทย-จีน<br>
+        ด้วยสีมงคลประจำวันเกิดและธาตุเสริมดวงของคุณ
+      </p>
+    </header>
+
+    <!-- Progress Steps -->
+    <div class="progress-steps">
+      <div class="step">
+        <div class="step-circle active current" id="step1">1</div>
+        <span class="step-label active">กรอกข้อมูล</span>
+      </div>
+      <div class="step-line" id="line1"></div>
+      <div class="step">
+        <div class="step-circle" id="step2">2</div>
+        <span class="step-label">ดูดวง</span>
+      </div>
+      <div class="step-line" id="line2"></div>
+      <div class="step">
+        <div class="step-circle" id="step3">3</div>
+        <span class="step-label">ชำระเงิน</span>
+      </div>
+      <div class="step-line" id="line3"></div>
+      <div class="step">
+        <div class="step-circle" id="step4">4</div>
+        <span class="step-label">รับภาพ</span>
+      </div>
+    </div>
+
+    <!-- Step 1: Form -->
+    <div class="page-section active" id="formSection">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path></svg>
+          </div>
+          <div>
+            <h2 class="card-title">กรอกข้อมูลของคุณ</h2>
+            <p class="card-subtitle">เพื่อคำนวณสีมงคลและธาตุเสริมดวง</p>
+          </div>
+        </div>
+        
+        <form id="birthForm">
+          <div class="form-group">
+            <label for="nickname">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              ชื่อเล่น
+            </label>
+            <input type="text" id="nickname" placeholder="กรอกชื่อเล่นของคุณ" required>
+            <p class="error-text hidden" id="nicknameError">กรุณากรอกชื่อเล่น</p>
+          </div>
+          
+          <div class="form-group">
+            <label for="birthDate">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              วันเดือนปีเกิด
+            </label>
+            <input type="date" id="birthDate" required>
+            <p class="error-text hidden" id="birthDateError">กรุณาเลือกวันเกิด</p>
+          </div>
+          
+          <button type="submit" class="btn btn-primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path></svg>
+            ดูดวงและสร้าง Vision Board
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Step 2: Fortune Display -->
+    <div class="page-section" id="fortuneSection">
+      <div class="card">
+        <h2 class="card-title text-center mb-4" style="background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          สวัสดีคุณ <span id="displayNickname"></span> ✨
+        </h2>
+        <p class="card-subtitle text-center mb-6">นี่คือดวงชะตาและสีมงคลของคุณ</p>
+        
+        <div class="space-y-6" id="fortuneContent">
+          <!-- Thai Lucky Color -->
+          <div class="fortune-section">
+            <div class="fortune-header">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+              <h3>สีมงคลประจำวันเกิด</h3>
+            </div>
+            <div class="fortune-color-box">
+              <div class="color-swatch" id="thaiColorSwatch"></div>
+              <div class="color-info">
+                <h4 id="thaiColorName">สีแดง</h4>
+                <p id="thaiDayName">วันอาทิตย์</p>
+              </div>
+            </div>
+            <p class="fortune-text" id="dailyFortune"></p>
+          </div>
+          
+          <!-- Chinese Element -->
+          <div class="fortune-section">
+            <div class="fortune-header">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+              <h3>ธาตุเสริมดวงจีน</h3>
+            </div>
+            <div class="fortune-color-box">
+              <div class="color-swatch" id="elementSwatch" style="display: flex; align-items: center; justify-content: center;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="opacity: 0.9;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path></svg>
+              </div>
+              <div class="color-info">
+                <h4 id="elementName">ธาตุไม้</h4>
+                <p id="elementMeaning">การเติบโต ความอุดมสมบูรณ์</p>
+              </div>
+            </div>
+            <p class="fortune-text" id="elementFortune"></p>
+          </div>
+          
+          <!-- Chinese Zodiac -->
+          <div class="fortune-section">
+            <div class="fortune-header">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path></svg>
+              <h3>ปีนักษัตร</h3>
+            </div>
+            <h4 id="zodiacName" style="font-size: 1.25rem; font-weight: 600;">ปีหนู</h4>
+            <p style="color: var(--muted-foreground); margin-top: 0.25rem;">นักษัตรจีน</p>
+            <p class="fortune-text" id="zodiacFortune"></p>
+          </div>
+          
+          <!-- Inspiring Quote -->
+          <div class="fortune-section quote-card">
+            <div class="fortune-header" style="justify-content: center;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21c0 1 0 1 1 1z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"></path></svg>
+              <h3>คำคมแห่งดวงชะตา</h3>
+            </div>
+            <blockquote id="inspiringQuote">"ความสำเร็จเริ่มต้นจากความเชื่อมั่นในตัวเอง"</blockquote>
+          </div>
+          
+          <!-- Overall Blessing -->
+          <div class="fortune-section blessing-card">
+            <div class="fortune-header" style="justify-content: center;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
+              <h3>คำอวยพรประจำปี</h3>
+            </div>
+            <p id="overallBlessing">ปีนี้จะเป็นปีแห่งความสำเร็จและความสุขที่ยิ่งใหญ่</p>
+          </div>
+          
+          <!-- Lucky Colors Preview -->
+          <div class="fortune-section">
+            <h3 style="font-weight: 500; margin-bottom: 1rem;">สีมงคลสำหรับ Vision Board</h3>
+            <div class="lucky-colors" id="luckyColors"></div>
+          </div>
+        </div>
+      </div>
+      
+      <button class="btn btn-primary" style="margin-top: 1.5rem;" onclick="goToPayment()">
+        สร้าง Vision Board (฿99)
+      </button>
+    </div>
+
+    <!-- Step 3: Payment -->
+    <div class="page-section" id="paymentSection">
+      <div class="card payment-card">
+        <h2 class="card-title text-center mb-4" style="background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ชำระเงิน</h2>
+        <p class="card-subtitle text-center mb-6">สแกน QR Code เพื่อชำระเงิน</p>
+        
+        <div class="qr-container">
+          <div class="qr-box">
+            <div class="qr-inner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+              <div class="qr-pattern" id="qrPattern"></div>
+            </div>
+          </div>
+          <div class="payment-success" id="paymentSuccess">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+        </div>
+        
+        <div class="price">
+          <span class="price-amount">฿99</span>
+          <span class="price-currency">THB</span>
+        </div>
+        
+        <button class="btn btn-primary" id="paymentBtn" onclick="simulatePayment()">
+          จำลองการชำระเงิน (Demo)
+        </button>
+        
+        <p class="payment-note">* ระบบ Demo - กดปุ่มเพื่อจำลองการชำระเงิน</p>
+      </div>
+    </div>
+
+    <!-- Step 4: Generate Vision Board -->
+    <div class="page-section" id="generateSection">
+      <!-- Before Generation -->
+      <div class="card generator-card" id="beforeGenerate">
+        <div class="generator-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path></svg>
+        </div>
+        <h3 class="generator-title font-display">พร้อมสร้าง Vision Board</h3>
+        <p class="generator-subtitle">
+          ระบบจะช่วยเขียนคำมงคล คำคม และ Affirmations<br>
+          ที่ออกแบบมาเฉพาะสำหรับดวงชะตาของคุณ
+        </p>
+        <button class="btn btn-primary" id="generateBtn" onclick="generateVisionBoard()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path></svg>
+          สร้าง Vision Board
+        </button>
+      </div>
+      
+      <!-- After Generation -->
+      <div class="card hidden" id="afterGenerate">
+        <div class="generated-image">
+          <img id="generatedImage" src="" alt="Vision Board">
+        </div>
+        
+        <div class="download-buttons">
+          <button class="btn btn-primary" onclick="downloadImage('png')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            ดาวน์โหลด PNG
+          </button>
+          <button class="btn btn-outline" onclick="downloadImage('jpg')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            ดาวน์โหลด JPG
+          </button>
+        </div>
+        
+        <button class="btn btn-ghost" onclick="regenerateBoard()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path></svg>
+          สร้างใหม่
+        </button>
+      </div>
+    </div>
+
+    <footer>
+      <p>✨ Vision Board Generator - ผสานความเชื่อมงคลไทย-จีน ✨</p>
+    </footer>
+  </div>
+
+  <!-- Hidden Canvas for Vision Board Generation -->
+  <canvas id="visionCanvas" style="display: none;"></canvas>
+
+  <script>
+    // Data
+    let userData = {
+      nickname: '',
+      birthDate: null,
+      fortune: null
+    };
+
+    // Thai lucky colors by day of birth
+    const thaiDayColors = {
+      0: { day: 'อาทิตย์', color: 'แดง', hex: '#e63946' },
+      1: { day: 'จันทร์', color: 'เหลือง', hex: '#ffd60a' },
+      2: { day: 'อังคาร', color: 'ชมพู', hex: '#e056a0' },
+      3: { day: 'พุธ', color: 'เขียว', hex: '#2d9c3c' },
+      4: { day: 'พฤหัสบดี', color: 'ส้ม', hex: '#f77f00' },
+      5: { day: 'ศุกร์', color: 'ฟ้า', hex: '#4895ef' },
+      6: { day: 'เสาร์', color: 'ม่วง', hex: '#7b2cbf' }
+    };
+
+    // Chinese zodiac animals by year
+    const zodiacAnimals = ['หนู', 'วัว', 'เสือ', 'กระต่าย', 'มังกร', 'งู', 'ม้า', 'แพะ', 'ลิง', 'ไก่', 'หมา', 'หมู'];
+
+    // Chinese elements
+    const chineseElements = {
+      wood: { thai: 'ธาตุไม้', hex: '#2d6a4f', meaning: 'การเติบโต ความอุดมสมบูรณ์' },
+      fire: { thai: 'ธาตุไฟ', hex: '#e63946', meaning: 'พลัง ความกระตือรือร้น' },
+      earth: { thai: 'ธาตุดิน', hex: '#bc6c25', meaning: 'ความมั่นคง ความอดทน' },
+      metal: { thai: 'ธาตุทอง', hex: '#adb5bd', meaning: 'ความมั่งคั่ง ความเข้มแข็ง' },
+      water: { thai: 'ธาตุน้ำ', hex: '#0077b6', meaning: 'ปัญญา ความยืดหยุ่น' }
+    };
+
+    // Fortune predictions database
+    const fortunePredictions = {
+      daily: {
+        0: 'วันอาทิตย์เป็นวันแห่งพลังและความเป็นผู้นำ คุณมีพลังอำนาจในการนำพาชีวิตไปสู่ความสำเร็จ',
+        1: 'วันจันทร์เป็นวันแห่งความอ่อนโยนและสัญชาตญาณ คุณมีพลังพิเศษในการเข้าใจผู้คนรอบข้าง',
+        2: 'วันอังคารเป็นวันแห่งความกล้าหาญ คุณมีพลังในการเอาชนะอุปสรรคทุกอย่าง',
+        3: 'วันพุธเป็นวันแห่งปัญญาและการสื่อสาร คุณมีความสามารถพิเศษในการเจรจาและสร้างความสัมพันธ์',
+        4: 'วันพฤหัสบดีเป็นวันแห่งความเมตตาและโชคลาภ คุณมีบุญวาสนาที่จะนำพาความเจริญรุ่งเรือง',
+        5: 'วันศุกร์เป็นวันแห่งความรักและความงาม คุณมีเสน่ห์พิเศษที่ดึงดูดสิ่งดีๆ เข้ามาในชีวิต',
+        6: 'วันเสาร์เป็นวันแห่งความอดทนและความมั่นคง คุณมีพลังในการสร้างรากฐานที่แข็งแกร่ง'
+      },
+      element: {
+        wood: 'ธาตุไม้นำพาการเติบโตและความอุดมสมบูรณ์ ชีวิตจะเบ่งบานเหมือนต้นไม้ใหญ่ที่หยั่งรากลึก',
+        fire: 'ธาตุไฟให้พลังและความกระตือรือร้น คุณจะมีพลังขับเคลื่อนในการทำสิ่งต่างๆ ให้สำเร็จ',
+        earth: 'ธาตุดินนำความมั่นคงและความอดทน เป็นรากฐานที่แข็งแกร่งสำหรับทุกความสำเร็จ',
+        metal: 'ธาตุทองนำความมั่งคั่งและความเข้มแข็ง โชคลาภจะไหลเข้ามาอย่างมากมาย',
+        water: 'ธาตุน้ำนำปัญญาและความยืดหยุ่น คุณจะปรับตัวและไหลลื่นไปสู่เป้าหมายได้อย่างง่ายดาย'
+      },
+      zodiac: {
+        'หนู': 'ปีหนูเป็นปีแห่งความชาญฉลาด คุณมีไหวพริบในการหาโอกาสและสร้างความมั่งคั่ง',
+        'วัว': 'ปีวัวเป็นปีแห่งความขยัน คุณมีความอดทนและความมุ่งมั่นที่จะประสบความสำเร็จ',
+        'เสือ': 'ปีเสือเป็นปีแห่งความกล้าหาญ คุณมีพลังและความมั่นใจในการเผชิญทุกความท้าทาย',
+        'กระต่าย': 'ปีกระต่ายเป็นปีแห่งความโชคดี คุณมีเสน่ห์และความสง่างามที่ดึงดูดสิ่งดีๆ',
+        'มังกร': 'ปีมังกรเป็นปีแห่งความยิ่งใหญ่ คุณมีพลังอำนาจและบารมีที่เหนือกว่าผู้อื่น',
+        'งู': 'ปีงูเป็นปีแห่งปัญญา คุณมีความลึกซึ้งและสัญชาตญาณที่แม่นยำ',
+        'ม้า': 'ปีม้าเป็นปีแห่งอิสรภาพ คุณมีพลังและความกระตือรือร้นในการไล่ตามความฝัน',
+        'แพะ': 'ปีแพะเป็นปีแห่งความสร้างสรรค์ คุณมีจินตนาการและความอ่อนโยนที่น่าหลงใหล',
+        'ลิง': 'ปีลิงเป็นปีแห่งความฉลาด คุณมีไหวพริบและความคล่องแคล่วในการแก้ปัญหา',
+        'ไก่': 'ปีไก่เป็นปีแห่งความขยัน คุณมีความพากเพียรและความเอาใจใส่ในทุกรายละเอียด',
+        'หมา': 'ปีหมาเป็นปีแห่งความซื่อสัตย์ คุณมีความจงรักภักดีและความน่าเชื่อถือ',
+        'หมู': 'ปีหมูเป็นปีแห่งความโชคดี คุณมีความใจดีและจะได้รับสิ่งดีๆ ตอบแทน'
+      }
+    };
+
+    // Quotes and affirmations
+    const quotes = [
+      "ความสำเร็จเริ่มต้นจากความเชื่อมั่นในตัวเอง",
+      "ทุกความฝันเป็นจริงได้ เมื่อกล้าที่จะลงมือทำ",
+      "พลังที่ยิ่งใหญ่ที่สุดอยู่ภายในตัวคุณ",
+      "วันนี้คือวันที่ดีที่สุดในการเริ่มต้น",
+      "ความสุขคือการเดินทาง ไม่ใช่จุดหมายปลายทาง",
+      "จงเชื่อในปาฏิหาริย์ เพราะคุณก็คือหนึ่งในนั้น"
+    ];
+
+    const blessings = [
+      "ขอให้โชคดี มีความสุข สมหวังดั่งใจ",
+      "ขอให้ร่ำรวยเงินทอง สุขภาพดี",
+      "ขอให้ประสบความสำเร็จในทุกด้าน"
+    ];
+
+    const affirmations = [
+      "ฉันพร้อมรับความสำเร็จที่ยิ่งใหญ่",
+      "ความมั่งคั่งไหลเข้ามาในชีวิตฉันอย่างง่ายดาย",
+      "ฉันเปี่ยมไปด้วยความรักและความสุข",
+      "พลังงานดีๆ อยู่รอบตัวฉันเสมอ",
+      "ทุกเป้าหมายของฉันสำเร็จได้"
+    ];
+
+    const luckyWords = ["รุ่งเรือง", "มั่งคั่ง", "สมปรารถนา", "เจริญรุ่งเรือง"];
+
+    // Functions
+    function getChineseZodiac(year) {
+      const index = (year - 4) % 12;
+      return zodiacAnimals[index >= 0 ? index : index + 12];
+    }
+
+    function getChineseElement(year) {
+      const cycle = (year - 4) % 10;
+      const elementIndex = Math.floor(cycle / 2);
+      const elements = ['wood', 'fire', 'earth', 'metal', 'water'];
+      return elements[elementIndex];
+    }
+
+    function getFortuneInfo(birthDate) {
+      const dayIndex = birthDate.getDay();
+      const thaiDay = thaiDayColors[dayIndex];
+      const zodiac = getChineseZodiac(birthDate.getFullYear());
+      const elementKey = getChineseElement(birthDate.getFullYear());
+      const element = chineseElements[elementKey];
+      
+      return {
+        thaiDay: { ...thaiDay, index: dayIndex },
+        zodiac,
+        element: { ...element, key: elementKey },
+        luckyColors: [thaiDay.hex, element.hex]
+      };
+    }
+
+    function updateProgress(step) {
+      for (let i = 1; i <= 4; i++) {
+        const circle = document.getElementById('step' + i);
+        const label = circle.parentElement.querySelector('.step-label');
+        const line = document.getElementById('line' + (i - 1));
+        
+        if (i <= step) {
+          circle.classList.add('active');
+          if (label) label.classList.add('active');
+          if (line) line.classList.add('active');
+        } else {
+          circle.classList.remove('active');
+          if (label) label.classList.remove('active');
+          if (line) line.classList.remove('active');
+        }
+        
+        if (i === step) {
+          circle.classList.add('current');
+        } else {
+          circle.classList.remove('current');
+        }
+      }
+    }
+
+    function showSection(sectionId) {
+      document.querySelectorAll('.page-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      document.getElementById(sectionId).classList.add('active');
+    }
+
+    // Form submission
+    document.getElementById('birthForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const nickname = document.getElementById('nickname').value.trim();
+      const birthDateStr = document.getElementById('birthDate').value;
+      
+      let hasError = false;
+      
+      if (!nickname) {
+        document.getElementById('nicknameError').classList.remove('hidden');
+        hasError = true;
+      } else {
+        document.getElementById('nicknameError').classList.add('hidden');
+      }
+      
+      if (!birthDateStr) {
+        document.getElementById('birthDateError').classList.remove('hidden');
+        hasError = true;
+      } else {
+        document.getElementById('birthDateError').classList.add('hidden');
+      }
+      
+      if (hasError) return;
+      
+      userData.nickname = nickname;
+      userData.birthDate = new Date(birthDateStr);
+      userData.fortune = getFortuneInfo(userData.birthDate);
+      
+      // Update fortune display
+      displayFortune();
+      
+      // Go to fortune section
+      updateProgress(2);
+      showSection('fortuneSection');
+    });
+
+    function displayFortune() {
+      const fortune = userData.fortune;
+      
+      document.getElementById('displayNickname').textContent = userData.nickname;
+      
+      // Thai color
+      document.getElementById('thaiColorSwatch').style.backgroundColor = fortune.thaiDay.hex;
+      document.getElementById('thaiColorName').textContent = 'สี' + fortune.thaiDay.color;
+      document.getElementById('thaiDayName').textContent = 'วัน' + fortune.thaiDay.day;
+      document.getElementById('dailyFortune').textContent = fortunePredictions.daily[fortune.thaiDay.index];
+      
+      // Element
+      document.getElementById('elementSwatch').style.backgroundColor = fortune.element.hex;
+      document.getElementById('elementName').textContent = fortune.element.thai;
+      document.getElementById('elementMeaning').textContent = fortune.element.meaning;
+      document.getElementById('elementFortune').textContent = fortunePredictions.element[fortune.element.key];
+      
+      // Zodiac
+      document.getElementById('zodiacName').textContent = 'ปี' + fortune.zodiac;
+      document.getElementById('zodiacFortune').textContent = fortunePredictions.zodiac[fortune.zodiac];
+      
+      // Quote
+      document.getElementById('inspiringQuote').textContent = '"' + quotes[Math.floor(Math.random() * quotes.length)] + '"';
+      
+      // Blessing
+      document.getElementById('overallBlessing').textContent = 'ปีนี้ ' + userData.nickname + ' จะมีแต่สิ่งดีๆ เข้ามาในชีวิต ความสำเร็จ ความรัก และโชคลาภจะมาหาอย่างมากมาย';
+      
+      // Lucky colors
+      const luckyColorsContainer = document.getElementById('luckyColors');
+      luckyColorsContainer.innerHTML = '';
+      fortune.luckyColors.forEach(color => {
+        const colorDiv = document.createElement('div');
+        colorDiv.className = 'lucky-color';
+        colorDiv.style.backgroundColor = color;
+        luckyColorsContainer.appendChild(colorDiv);
+      });
+      
+      // Add gradient color
+      const gradientDiv = document.createElement('div');
+      gradientDiv.className = 'lucky-color';
+      gradientDiv.style.background = 'linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)';
+      luckyColorsContainer.appendChild(gradientDiv);
+    }
+
+    function goToPayment() {
+      updateProgress(3);
+      showSection('paymentSection');
+      
+      // Generate QR pattern
+      const pattern = document.getElementById('qrPattern');
+      pattern.innerHTML = '';
+      for (let i = 0; i < 64; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'qr-cell' + ((i + Math.floor(i/8)) % 3 === 0 ? ' filled' : '');
+        pattern.appendChild(cell);
+      }
+    }
+
+    function simulatePayment() {
+      const btn = document.getElementById('paymentBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="loader"></div> กำลังตรวจสอบ...';
+      
+      setTimeout(() => {
+        document.getElementById('paymentSuccess').classList.add('show');
+        btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> ชำระเงินสำเร็จ!';
+        
+        setTimeout(() => {
+          updateProgress(4);
+          showSection('generateSection');
+        }, 1000);
+      }, 2000);
+    }
+
+    function generateVisionBoard() {
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="loader"></div> กำลังสร้าง Vision Board...';
+      
+      setTimeout(() => {
+        createVisionBoardCanvas();
+        
+        document.getElementById('beforeGenerate').classList.add('hidden');
+        document.getElementById('afterGenerate').classList.remove('hidden');
+      }, 1500);
+    }
+
+    function createVisionBoardCanvas() {
+      const canvas = document.getElementById('visionCanvas');
+      const ctx = canvas.getContext('2d');
+      const fortune = userData.fortune;
+      
+      canvas.width = 1920;
+      canvas.height = 1080;
+      
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, '#1a1a2e');
+      gradient.addColorStop(0.5, '#16213e');
+      gradient.addColorStop(1, '#0f0f23');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Add glow effects
+      const addGlow = (x, y, color, radius) => {
+        const glow = ctx.createRadialGradient(x, y, 0, x, y, radius);
+        glow.addColorStop(0, color);
+        glow.addColorStop(1, 'transparent');
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      };
+      
+      addGlow(300, 200, fortune.thaiDay.hex + '40', 400);
+      addGlow(1600, 800, fortune.element.hex + '30', 500);
+      addGlow(960, 540, '#ffd60a20', 600);
+      
+      // Stars
+      for (let i = 0; i < 200; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const radius = Math.random() * 2;
+        const opacity = Math.random() * 0.8 + 0.2;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 214, 10, ${opacity})`;
+        ctx.fill();
+      }
+      
+      // Decorative circles
+      ctx.strokeStyle = '#ffd60a30';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(960, 540, 300, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(960, 540, 400, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      // Lucky color blocks
+      const colors = [fortune.thaiDay.hex, fortune.element.hex, '#ffd60a'];
+      colors.forEach((color, i) => {
+        ctx.fillStyle = color + '60';
+        ctx.beginPath();
+        ctx.roundRect(80 + i * 180, 850, 150, 80, 15);
+        ctx.fill();
+        
+        ctx.font = 'bold 20px "Noto Sans Thai", sans-serif';
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.fillText(luckyWords[i], 155 + i * 180, 898);
+      });
+      
+      // Fourth block
+      ctx.fillStyle = '#ffffff20';
+      ctx.beginPath();
+      ctx.roundRect(620, 850, 150, 80, 15);
+      ctx.fill();
+      ctx.font = 'bold 20px "Noto Sans Thai", sans-serif';
+      ctx.fillStyle = '#ffd60a';
+      ctx.textAlign = 'center';
+      ctx.fillText(luckyWords[3], 695, 898);
+      
+      // Title
+      ctx.font = 'bold 72px "Playfair Display", serif';
+      ctx.fillStyle = '#ffd60a';
+      ctx.textAlign = 'center';
+      ctx.fillText('Vision Board', 960, 100);
+      
+      // Nickname
+      ctx.font = 'bold 48px "Noto Sans Thai", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('สำหรับ ' + userData.nickname, 960, 170);
+      
+      // Fortune info
+      ctx.font = '28px "Noto Sans Thai", sans-serif';
+      ctx.fillStyle = '#ffffffcc';
+      ctx.fillText('วัน' + fortune.thaiDay.day + ' • สี' + fortune.thaiDay.color + ' • ' + fortune.element.thai + ' • ปี' + fortune.zodiac, 960, 220);
+      
+      // Main quote
+      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      ctx.font = 'bold 40px "Noto Sans Thai", sans-serif';
+      ctx.fillStyle = '#ffd60a';
+      ctx.textAlign = 'center';
+      ctx.fillText('"' + randomQuote + '"', 960, 300);
+      
+      // Affirmations (left side)
+      ctx.textAlign = 'left';
+      ctx.font = '26px "Noto Sans Thai", sans-serif';
+      const emojis = ['✨', '💰', '❤️', '🌟', '🎯'];
+      affirmations.forEach((text, i) => {
+        ctx.fillStyle = '#ffffffee';
+        ctx.fillText(emojis[i] + ' ' + text, 100, 400 + i * 50);
+      });
+      
+      // Blessings (right side)
+      ctx.textAlign = 'right';
+      ctx.font = '24px "Noto Sans Thai", sans-serif';
+      ctx.fillStyle = '#ffd60acc';
+      blessings.forEach((text, i) => {
+        ctx.fillText('🙏 ' + text, 1820, 400 + i * 45);
+      });
+      
+      // Yearly blessing
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 32px "Noto Sans Thai", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('ปี 2025 ' + userData.nickname + ' จะมีแต่ความสุขและความสำเร็จ', 960, 780);
+      
+      // Year watermark
+      ctx.font = 'bold 140px "Playfair Display", serif';
+      ctx.fillStyle = '#ffd60a25';
+      ctx.fillText('2025', 1500, 700);
+      
+      // Footer
+      ctx.font = '18px "Noto Sans Thai", sans-serif';
+      ctx.fillStyle = '#ffffff60';
+      ctx.textAlign = 'center';
+      ctx.fillText('✨ Vision Board Generator - ผสานความเชื่อมงคลไทย-จีน ✨', 960, 1050);
+      
+      // Set image
+      document.getElementById('generatedImage').src = canvas.toDataURL('image/png');
+    }
+
+    function downloadImage(format) {
+      const canvas = document.getElementById('visionCanvas');
+      const link = document.createElement('a');
+      link.download = 'vision-board-' + userData.nickname + '-' + Date.now() + '.' + format;
+      
+      if (format === 'jpg') {
+        link.href = canvas.toDataURL('image/jpeg', 0.95);
+      } else {
+        link.href = canvas.toDataURL('image/png');
+      }
+      
+      link.click();
+    }
+
+    function regenerateBoard() {
+      document.getElementById('beforeGenerate').classList.remove('hidden');
+      document.getElementById('afterGenerate').classList.add('hidden');
+      
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path></svg> สร้าง Vision Board';
+    }
+  </script>
+</body>
+</html>
